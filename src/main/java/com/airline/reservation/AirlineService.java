@@ -1,25 +1,18 @@
 package com.airline.reservation;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
 public class AirlineService {
-    
-    // Search for flights by origin & destination
     public List<Flight> searchFlights(String origin, String destination) throws SQLException {
         List<Flight> result = new ArrayList<>();
         String sql = "SELECT flight_number, origin, destination, total_seats, booked_seats FROM flights WHERE origin = ? AND destination = ? AND booked_seats < total_seats";
-
         try (Connection conn = DBManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
             stmt.setString(1, origin);
-            stmt.setString(2, destination);
-            
+            stmt.setString(2, destination);  
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     // Flight object creation uses the data retrieved from the database
@@ -29,13 +22,6 @@ public class AirlineService {
                         rs.getString("destination"), 
                         rs.getInt("total_seats")
                     );
-                    // Manually set bookedSeats to ensure accurate available seat calculation
-                    // NOTE: This assumes Flight.java has a way to update bookedSeats, 
-                    // or we use the constructor fields to represent the booked state.
-                    // For simplicity, we rely on the getter/setter/constructor provided by the user.
-                    // Since the user's Flight class only allows setting bookedSeats in the constructor
-                    // and then modifies it via bookSeat(), we'll use a safer approach and only retrieve the available seats count
-                    // Since we can't fully modify Flight.java, we'll return the object with its current state.
                     result.add(f);
                 }
             }
@@ -116,3 +102,4 @@ public class AirlineService {
         }
     }
 }
+
